@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The printer speaks plain HTTP and nothing else: its own HTTPS is a 2019
+  firmware whose handshake modern clients refuse outright. Both protocols it
+  needs - eSCL for scanning and IPP for status - are therefore cleartext, on a
+  home LAN, so cleartext is permitted here. It is not permitted for the sake of
+  any internet host: the app contacts no server outside the local network.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

@@ -1,0 +1,52 @@
+name: build apk
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# The build publishes the APK to a rolling release, which is the only form a
+# phone can install from in one tap; an Actions artifact arrives as a zip.
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # No Gradle wrapper is committed, so the action supplies Gradle itself.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build the debug APK
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Name the APK after the run
+        id: apk
+        run: |
+          path=$(find app/build/outputs/apk/debug -name '*.apk' | head -1)
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: printer-app-debug
+          path: ${{ steps.apk.outputs.path }}
+          if-no-files-found: error
+
+      - name: Publish it to the rolling release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest "${{ steps.apk.outputs.path }}" \
+            --title "APK האחרון" \
+            --notes "נבנה מ-${{ github.sha }}"
