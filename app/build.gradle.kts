@@ -54,8 +54,10 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.material3:material3")
-    // ui-tooling is left out on purpose: it exists for Android Studio previews,
-    // which nothing here uses, and it alone took the debug APK past 56 MB.
+    // Two Compose extras are left out on purpose, and together they were two
+    // thirds of the APK: material-icons-extended, a very large icon pack this
+    // UI draws none of, and ui-tooling, which exists for Android Studio
+    // previews that nothing here uses. 56 MB became 22 MB.
 
     testImplementation("junit:junit:4.13.2")
 }
